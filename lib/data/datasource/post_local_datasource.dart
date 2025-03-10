@@ -2,7 +2,12 @@ import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:viralize/data/models/post_mode.dart';
 
-class PostLocalDataSource {
+abstract class PostLocalDataSource {
+  Future<List<PostModel>> getPosts();
+  Future<void> insertPost(PostModel post);
+}
+
+class PostLocalDataSourceImpl implements PostLocalDataSource {
   static Database? _database;
 
   Future<Database> get database async {
@@ -28,18 +33,17 @@ class PostLocalDataSource {
     );
   }
 
+  @override
   Future<void> insertPost(PostModel post) async {
     final db = await database;
     await db.insert('posts', post.toJson(),
         conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
+  @override
   Future<List<PostModel>> getPosts() async {
     final db = await database;
-    final List<Map<String, dynamic>> maps = await db.query(
-      'posts',
-      orderBy: 'id DESC',
-    );
+    final List<Map<String, dynamic>> maps = await db.query('posts');
 
     return List.generate(maps.length, (i) {
       return PostModel.fromJson(maps[i]);

@@ -19,17 +19,22 @@ class PostBloc extends Bloc<PostEvent, PostState> {
     emit(PostLoading());
     try {
       final posts = await getPostsUseCase();
-      emit(PostLoaded(posts));
+      emit(PostLoaded(List.from(posts)));
     } catch (e) {
       emit(PostError('Erro ao buscar posts'));
     }
   }
 
   Future<void> _onAddPost(AddPostEvent event, Emitter<PostState> emit) async {
+    if (state is! PostLoaded) return;
+
     try {
-      await addPostUseCase(event.post);
-      final posts = await getPostsUseCase();
-      emit(PostLoaded(posts));
+      final newPost = await addPostUseCase(event.post);
+
+      final currentState = state as PostLoaded;
+      final updatedPosts = [newPost, ...currentState.posts];
+
+      emit(PostLoaded(updatedPosts));
     } catch (e) {
       emit(PostError('Erro ao adicionar post'));
     }

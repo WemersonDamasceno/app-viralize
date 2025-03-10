@@ -6,7 +6,7 @@ class AddPostUseCase {
 
   AddPostUseCase(this.repository);
 
-  Future<void> call(PostEntity post) async {
-    await repository.addPost(post);
+  Future<PostEntity> call(PostEntity post) async {
+    return await repository.addPost(post);
   }
 }

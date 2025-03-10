@@ -19,26 +19,25 @@ class PostRepositoryImpl implements PostRepository {
     try {
       final remotePosts = await remoteDataSource.fetchPosts();
       for (var post in remotePosts) {
-        await localDataSource.insertPost(post);
+        await localDataSource.insertPost(post); // Cache local
       }
       return remotePosts;
     } catch (e) {
-      return await localDataSource.getPosts();
+      return await localDataSource.getPosts(); // Retorna cache se falhar
     }
   }
 
   @override
-  Future<void> addPost(PostEntity post) async {
+  Future<PostEntity> addPost(PostEntity post) async {
     final postModel = PostModel(
       idModel: post.id,
       titleModel: post.title,
       bodyModel: post.body,
     );
-    try {
-      await remoteDataSource.addPost(postModel);
-    } catch (e) {
-      // Tratar erro de API se necessário
-    }
-    await localDataSource.insertPost(postModel);
+    final newPost = await remoteDataSource.addPost(postModel);
+
+    await localDataSource.insertPost(newPost);
+
+    return newPost;
   }
 }

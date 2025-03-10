@@ -13,7 +13,7 @@ class HomeProvider extends StatelessWidget {
       providers: [
         BlocProvider<PostBloc>(create: (context) => sl()),
       ],
-      child: HomePage(),
+      child: const HomePage(),
     );
   }
 }
